@@ -84,6 +84,7 @@ class MeanFieldGaussianDistribution(ExponentialFamilyDistribution):
         loc = std_params["loc"]
         scale = std_params["scale"]
 
+        # Moments
         mp = {
             "m1": loc,
             "m2": scale ** 2 + loc ** 2,

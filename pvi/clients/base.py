@@ -481,7 +481,7 @@ class ClientBayesianHypers(Client):
         }
 
         # Gradient-based optimisation loop -- loop over epochs
-        epoch_iter = tqdm(range(self.config["epochs"]), desc="Epoch")
+        epoch_iter = tqdm(range(self.config["epochs"]), desc="Epoch", leave=True)
         # for i in range(self.config["epochs"]):
         for i in epoch_iter:
             epoch = {
@@ -586,7 +586,7 @@ class ClientBayesianHypers(Client):
             # Compute new local contribution from old distributions
             t_new = self.t.compute_refined_factor(
                 q,
-                q_cav,
+                q_cav, # previous / old q
                 damping=self.config["damping_factor"],
                 valid_dist=self.config["valid_factors"],
             )

@@ -111,6 +111,7 @@ class LogisticRegressionModel(Model, nn.Module):
         else:
             x_ = x
 
+        # Logits = x@theta
         if len(theta.shape) == 1:
             logits = x_.unsqueeze(-2).matmul(theta.unsqueeze(-1))
         else:

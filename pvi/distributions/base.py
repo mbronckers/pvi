@@ -233,7 +233,7 @@ class ExponentialFamilyDistribution(ABC, nn.Module):
     @property
     def nat_params(self):
 
-        # If _nat_params None or distribution trainable compute nat params
+        # If _nat_params None or distribution trainable, compute nat params
         if self.is_trainable or self._nat_params is None:
             self._nat_params = self._nat_from_std(self.std_params)
 
@@ -331,11 +331,15 @@ class ExponentialFamilyDistribution(ABC, nn.Module):
     def replace_factor(self, t_old=None, t_new=None, **kwargs):
         """
         Forms a new distribution by replacing the natural parameters of
-        t_old(θ) with t_new(θ).
+        t_old(θ) with t_new(θ) using the fact that
+
+        t_new(θ) /prop delta_k(θ) * t_old(θ)
+
         :param t_old: The factor to remove.
         :param t_new: The factor to add.
         :param kwargs: Passed to self.create_new()
         :return: Updated distribution.
+
         """
         # Compute change in natural parameters.
         if t_old is not None and t_new is not None:
@@ -381,10 +385,13 @@ class ExponentialFamilyDistribution(ABC, nn.Module):
         log_a = self.log_a().squeeze()
 
         # Stack natural parameters into single vector.
+        # np1 = n_1 = natural parameters of q
         np1 = torch.cat(
             [np.flatten(start_dim=self.batch_dims) for np in self.nat_params.values()],
             dim=-1,
         )
+
+        # np2 = n_p = natural parameters of p
         np2 = torch.cat(
             [np.flatten(start_dim=p.batch_dims) for np in p.nat_params.values()], dim=-1
         )
@@ -395,7 +402,7 @@ class ExponentialFamilyDistribution(ABC, nn.Module):
             dim=-1,
         )
 
-        # Compute KL-divergence.
+        # Compute KL-divergence: KL = (n_q - n_p) @ E_q[f(θ)] - A(n_q) 
         kl = (np1 - np2).unsqueeze(-2).matmul(m1.unsqueeze(-1)).squeeze()
         kl -= log_a
 

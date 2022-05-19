@@ -40,12 +40,13 @@ class FullyConnectedBNN(Model, nn.Module, ABC):
         return {}
 
     def forward(self, x, q, **kwargs):
+        """ Propagate x through BNN with approx post q()"""
 
         # Number of θ samples to draw
         num_pred_samples = self.config["num_predictive_samples"]
         theta = q.distribution.sample((num_pred_samples,))
 
-        # Collection of output distributions, one for each θ, x pair
+        # Collection of output distributions, one for each (θ, x) pair
         # Distribution assumed to be of shape (S, N, D).
         qy = self.likelihood_forward(x, theta, samples_first=False)
 
@@ -63,15 +64,17 @@ class FullyConnectedBNN(Model, nn.Module, ABC):
         assert len(x.shape) in [1, 2], "x must be (N, D)."
         assert len(theta.shape) in [1, 2], "theta must be (S, K)."
 
+        # If only one inference sample, reshape
         if len(x.shape) == 1:
             x = x[None, :]
-
         if len(theta.shape) == 1:
             theta = theta[None, :]
 
         # Converts θ-vectors to tensors, shaped as expected by the network.
         # i.e. (S, D_in + 1, D_out).
         theta = self.reshape_theta(theta)
+
+        # Forward x through FC network
         for i, W in enumerate(theta):
             # Bias term.
             x = torch.cat([x, torch.ones((*x.shape[:-1], 1)).to(x)], dim=-1)
@@ -81,6 +84,7 @@ class FullyConnectedBNN(Model, nn.Module, ABC):
             if i < len(theta) - 1:
                 x = self.activation(x)
 
+        1
         return self.pred_dist_from_tensor(x, samples_first=samples_first)
 
     def reshape_theta(self, theta):
@@ -126,6 +130,9 @@ class FullyConnectedBNN(Model, nn.Module, ABC):
 
     @abstractmethod
     def pred_dist_from_tensor(self, tensor, samples_first=False):
+        """
+        
+        """
         raise NotImplementedError
 
     @property
