@@ -40,7 +40,15 @@ class FullyConnectedBNN(Model, nn.Module, ABC):
         return {}
 
     def forward(self, x, q, **kwargs):
-        """ Propagate x through BNN with approx post q()"""
+        """ 
+        Propagate x through BNN with approx post q(w)
+        
+        GI => this forward() needs to be more like inducing.py
+        pass it the : prior, approx ll
+        use it 
+
+        Returns a mixture of predictive distributions with equal weights
+        """
 
         # Number of θ samples to draw
         num_pred_samples = self.config["num_predictive_samples"]
@@ -84,7 +92,9 @@ class FullyConnectedBNN(Model, nn.Module, ABC):
             if i < len(theta) - 1:
                 x = self.activation(x)
 
-        1
+        # Return the predictive distribution depending on task 
+        # Regression: tensor is
+        # Classification: tensor are logits, return categorical
         return self.pred_dist_from_tensor(x, samples_first=samples_first)
 
     def reshape_theta(self, theta):
