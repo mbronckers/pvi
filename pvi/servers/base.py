@@ -189,6 +189,7 @@ class Server(ABC):
             mq = {k: v.detach() for k, v in self.q.mean_params.items()}
             mp = {k: v.detach() for k, v in p_old.mean_params.items()}
 
+            # KL divergence
             vfe += sum(
                 [
                     (mq[k] - mp[k]).flatten().dot(v.flatten())
